@@ -30,56 +30,44 @@ class BashCommand:
         return self.__stdin
 
 
-def run_command(command, stdin=None, save_output=False):
+def run(command, print_to_console=True, stdin=None):
     """Run command at the bash prompt, providing input to stdin
 
-    If save_output == False, command will be run like a regular bash
+    If print_to_console == True, command will be run like a regular bash
     command, meaning all output to stderr and stdout will be
     printed to the console. A BashCommand object will be returned
+    containing a copy of the output for programmatic processing
 
-    If save_output == True, a BashCommand object will be returned
+    If print_to_console == false, a BashCommand object will be returned
     containing the return code from the process, as well as
     stderr and stdout.  No output is printed to the console
     """
 
-    if save_output:
-        if input == None:
-            proc = subprocess.Popen(
-                    command,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    shell=True
-                    )
-            output = proc.communicate()
-            return BashCommand(
-                    return_code=proc.returncode,
-                    stdout=output[0],
-                    stderr=output[1]
-                    )
-
-        else:
-            proc = subprocess.Popen(
-                    command,
-                    stdin=subprocess.PIPE,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
-                    shell=True
-                    )
-            output = proc.communicate(stdin)
-            return BashCommand(
-                    return_code=proc.returncode,
-                    stdout=output[0],
-                    stderr=output[1],
-                    stdin=stdin
-                    )
-
-    elif input != None:
-        return BashCommand(
-                return_code=subprocess.call(command, stdin=stdin, shell=True),
-                stdin=stdin
+    if stdin == None:
+        proc = subprocess.Popen(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=True
                 )
+        output = proc.communicate()
+
     else:
-        return BashCommand(
-                return_code=subprocess.call(command, shell=True)
+        proc = subprocess.Popen(
+                command,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                shell=True
                 )
+        output = proc.communicate(stdin)
+
+    if print_to_console:
+        print('%s\n%s' % output)
+    return BashCommand(
+            return_code=proc.returncode,
+            stdout=output[0],
+            stderr=output[1],
+            stdin=stdin
+            )
 
