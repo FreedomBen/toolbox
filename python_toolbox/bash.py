@@ -45,17 +45,32 @@ class BashCommand:
         """Retrieve the process' return code"""
         return self.__return_code
 
-    def stdout(self):
-        """Retrieve the process' output to stdout"""
-        return self.__stdout
+    def return_code_success(self):
+        """Returns true if the command exited successfully, false otherwise"""
+        return self.__return_code == 0
 
-    def stderr(self):
+    def stdout(self, strip_whitespace=True):
+        """Retrieve the process' output to stdout"""
+        if strip_whitespace:
+            return self.__stdout.strip()
+        else:
+            self.__stdout
+
+    def stderr(self, strip_whitespace=True):
         """Retrieve the process' output to stderr"""
         return self.__stderr
+        if strip_whitespace:
+            return self.__stderr.strip()
+        else:
+            self.__stderr
 
-    def stdin(self):
+    def stdin(self, strip_whitespace=True):
         """Retrieve the process' input to stdin"""
         return self.__stdin
+        if strip_whitespace:
+            return self.__stdin.strip()
+        else:
+            self.__stdin
 
 
 def run(command, print_to_console=True, stdin=None):
@@ -91,11 +106,14 @@ def run(command, print_to_console=True, stdin=None):
         output = proc.communicate(stdin)
 
     if print_to_console:
-        print('%s\n%s' % output)
+        if len(output[0]) > 0:
+            print('%s' % output[0])
+        if len(output[1]) > 0:
+            print('%s' % output[1])
+
     return BashCommand(
             return_code=proc.returncode,
             stdout=output[0],
             stderr=output[1],
             stdin=stdin
             )
-
